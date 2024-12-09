@@ -1,6 +1,11 @@
 from tkinter import *
 import random
 import time
+from platform_sprite import PlatformSprite
+from sprite import Sprite
+from coords import Coords
+from moving_platform_sprite import MovingPlatformSprite
+from door_sprite import DoorSprite
 
 class Game:
     def __init__(self):
@@ -48,13 +53,6 @@ class Game:
                 you_win()
                 break
 
-class Coords:
-    def __init__(self, x1=0, y1=0, x2=0, y2=0):
-        self.x1 = x1
-        self.y1 = y1
-        self.x2 = x2
-        self.y2 = y2
-
 def within_x(co1, co2):
     if (co1.x1 > co2.x1 and co1.x1 < co2.x2) \
         or (co1.x2 > co2.x1 and co1.x2 < co2.x2) \
@@ -100,50 +98,6 @@ def collided_bottom(y, co1, co2):
             return True
     return False
 
-class Sprite:
-    def __init__(self,game):
-        self.game = game
-        self.endgame = False
-        self.coordinates = None
-    def move(self):
-            pass
-    def coords(self):
-            return self.coordinates
-        
-class PlatformSprite(Sprite):
-    def __init__(self, game, photo_image, x, y, width, height):
-        Sprite.__init__(self, game)
-        self.photo_image = photo_image
-        self.image = game.canvas.create_image(x, y, \
-                image=self.photo_image, anchor='nw')
-        self.coordinates = Coords(x, y, x + width, y + height)
-
-class MovingPlatformSprite(Sprite):
-    def __init__(self, game, photo_image, x, y, width, height):
-        PlatformSprite.__init__(self, game, photo_image, x, y, 
-                width, height)
-        self.x = 2
-        self.counter = 0
-        self.last_time = time.time()
-        self.width = width
-        self.height = height
-
-    def coords(self):
-        xy = self.game.canvas.coords(self.image)
-        self.coordinates.x1 = xy[0]
-        self.coordinates.y1 = xy[1]
-        self.coordinates.x2 = xy[0] + self.width
-        self.coordinates.y2 = xy[1] + self.height
-        return self.coordinates
-             
-    def move(self):
-        if time.time() - self.last_time > 0.03:
-            self.last_time = time.time()
-            self.game.canvas.move(self.image, self.x, 0)
-            self.counter += 1
-            if self.counter > 20:
-                self.x *= -1
-                self.counter = 0
 
 class StickFigureSprite(Sprite):
     def __init__(self, game):
@@ -309,14 +263,6 @@ class StickFigureSprite(Sprite):
             self.y = 4  
 
         self.game.canvas.move(self.image, self.x, self.y)
-
-class DoorSprite(Sprite):
-    def __init__(self, game, photo_image, x, y, width, height):
-        Sprite.__init__(self, game)
-        self.photo_image = photo_image
-        self.image = game.canvas.create_image(x, y, \
-                image=self.photo_image, anchor='nw')
-        self.coordinates = Coords(x, y, x + (width / 2), y + height)
 
 def you_win():
 
