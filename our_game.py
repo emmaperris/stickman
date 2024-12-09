@@ -120,24 +120,30 @@ class PlatformSprite(Sprite):
 
 class MovingPlatformSprite(Sprite):
     def __init__(self, game, photo_image, x, y, width, height):
-        Sprite.__init__(self, game)
-        self.photo_image = photo_image
-        self.image = game.canvas.create_image(x, y, \
-                image=self.photo_image, anchor='nw')
-        self.coordinates = Coords(x, y, x + width, y + height)
+        PlatformSprite.__init__(self, game, photo_image, x, y, 
+                width, height)
+        self.x = 2
+        self.counter = 0
+        self.last_time = time.time()
+        self.width = width
+        self.height = height
 
+    def coords(self):
+        xy = self.game.canvas.coords(self.image)
+        self.coordinates.x1 = xy[0]
+        self.coordinates.y1 = xy[1]
+        self.coordinates.x2 = xy[0] + self.width
+        self.coordinates.y2 = xy[1] + self.height
+        return self.coordinates
+             
     def move(self):
-        # Make platform move left and right in a loop.
-        left_limit = Coords(0, 250, 0, 0)
-        right_limit = Coords(500, 250, 0, 0)
-        while(sf.endgame == False):
-            if(self.coordinates.x1 > left_limit):
-                self.coordinates.x1 = self.coordinates[0] - 10
-                time.sleep(0.1)
-            if(self.coordinates.x1 < right_limit):
-                self.coordinates.x1 = self.coordinates[0] + 10
-                time.sleep(0.1)
-        
+        if time.time() - self.last_time > 0.03:
+            self.last_time = time.time()
+            self.game.canvas.move(self.image, self.x, 0)
+            self.counter += 1
+            if self.counter > 20:
+                self.x *= -1
+                self.counter = 0
 
 class StickFigureSprite(Sprite):
     def __init__(self, game):
